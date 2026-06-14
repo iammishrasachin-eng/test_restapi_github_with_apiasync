@@ -48,3 +48,7 @@ Thumbs.db
 *.mov
 *.wmv
 
+/.vs
+/test_restapi_with_APISyncWithGithub/.vs/test_restapi_with_APISyncWithGithub
+/test_restapi_with_APISyncWithGithub/obj
+/test_restapi_with_APISyncWithGithub/Properties
