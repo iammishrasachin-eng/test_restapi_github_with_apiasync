@@ -29,5 +29,11 @@ namespace test_restapi_with_APISyncWithGithub.Controllers
             })
             .ToArray();
         }
+
+        [HttpGet("GetName")]
+        public string GetName()
+        {
+            return "Cardinal Technology Sol";
+        }
     }
 }
