@@ -35,5 +35,14 @@ namespace test_restapi_with_APISyncWithGithub.Controllers
         {
             return "Cardinal Technology Sol";
         }
+
+        [HttpGet("GetAddress")]
+        public string GetAddress()
+        {
+            return "Cardinal Technology Sol";
+        }
+
+
+
     }
 }
