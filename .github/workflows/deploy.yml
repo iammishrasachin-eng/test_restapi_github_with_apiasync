@@ -10,7 +10,9 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Clone code from Bitbucket
+        run: |
+          git clone https://x-token-auth:${{ secrets.BITBUCKET_TOKEN }}@bitbucket.org/iammishrasachin_workspace/test_restapi_with_apisync.git src
 
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
@@ -18,12 +20,11 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Publish
-        run: dotnet publish "${{ env.PROJECT_PATH }}" -c Release -o ./publish
+        run: dotnet publish "src/${{ env.PROJECT_PATH }}" -c Release -o ./publish
 
       - name: Zip artifact
         run: cd publish && zip -r ../app.zip . && cd ..
 
-      # zip aur deploy.ps1 dono VM par bhejo (SCP cmd shell se chalega)
       - name: Copy files to VM
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -31,10 +32,10 @@ jobs:
           port: ${{ secrets.VM_SSH_PORT }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
-          source: "app.zip,deploy.ps1"
+          source: "app.zip,src/deploy.ps1"
           target: "C:/temp"
+          strip_components: 1
 
-      # cmd default shell se PowerShell script ko -File se chalao (koi escaping nahi)
       - name: Deploy on VM
         uses: appleboy/ssh-action@v1.0.3
         with:
