@@ -42,6 +42,11 @@ namespace test_restapi_with_APISyncWithGithub.Controllers
             return "Cardinal Technology Sol";
         }
 
+        [HttpGet("GetAge")]
+        public string getAge()
+        {
+            return "10";
+        }
 
 
     }
