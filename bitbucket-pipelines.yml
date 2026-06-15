@@ -1,0 +1,17 @@
+image: alpine/git:latest
+
+pipelines:
+  branches:
+    master:
+      - step:
+          name: Sync to GitHub and trigger CI/CD
+          script:
+            - git push https://$GITHUB_USERNAME:$GITHUB_PAT@github.com/$GITHUB_USERNAME/$GITHUB_REPO.git HEAD:master -f
+            - sleep 5
+            - apk add --no-cache curl
+            - >
+              curl -X POST
+              -H "Accept: application/vnd.github+json"
+              -H "Authorization: Bearer $GITHUB_PAT"
+              "https://api.github.com/repos/$GITHUB_USERNAME/$GITHUB_REPO/actions/workflows/deploy.yml/dispatches"
+              -d '{"ref":"master"}'

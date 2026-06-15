@@ -1,0 +1,6 @@
+@test_restapi_with_APISyncWithGithub_HostAddress = http://localhost:5169
+
+GET {{test_restapi_with_APISyncWithGithub_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
