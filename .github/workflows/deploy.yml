@@ -1,0 +1,46 @@
+name: Build and Deploy to VM
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish
+        run: dotnet publish -c Release -o ./publish
+
+      - name: Zip artifact
+        run: cd publish && zip -r ../app.zip . && cd ..
+
+      - name: Copy zip to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          port: ${{ secrets.VM_SSH_PORT }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          source: "app.zip"
+          target: "C:/temp"
+
+      - name: Deploy on VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          port: ${{ secrets.VM_SSH_PORT }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          script: |
+            $deploy = "C:\inetpub\test_restapi_github_withasyncapi"
+            New-Item -Path "$deploy\app_offline.htm" -ItemType File -Force
+            Start-Sleep -Seconds 3
+            Expand-Archive -Path "C:\temp\app.zip" -DestinationPath $deploy -Force
+            Remove-Item "$deploy\app_offline.htm" -Force
+            Remove-Item "C:\temp\app.zip" -Force
