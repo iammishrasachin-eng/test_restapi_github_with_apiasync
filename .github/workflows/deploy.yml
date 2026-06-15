@@ -1,4 +1,4 @@
-﻿name: Build and Deploy to VM
+name: Build and Deploy to VM
 
 on:
   workflow_dispatch:
@@ -30,4 +30,19 @@ jobs:
       - name: Copy files to VM
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{
+          host: ${{ secrets.VM_HOST }}
+          port: ${{ secrets.VM_SSH_PORT }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          source: "app.zip,deploy.ps1"
+          target: "C:/temp"
+
+      - name: Deploy on VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          port: ${{ secrets.VM_SSH_PORT }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          command_timeout: 15m
+          script: powershell -ExecutionPolicy Bypass -File C:\temp\deploy.ps1
