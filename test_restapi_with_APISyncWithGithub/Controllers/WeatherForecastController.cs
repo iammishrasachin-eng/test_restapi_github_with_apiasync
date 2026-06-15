@@ -47,7 +47,11 @@ namespace test_restapi_with_APISyncWithGithub.Controllers
         {
             return "10";
         }
-
+        [HttpGet("GetTeam")]
+        public string GetTeam()
+        {
+            return "India";
+        }
 
     }
 }
