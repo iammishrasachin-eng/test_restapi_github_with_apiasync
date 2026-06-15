@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
 
 env:
-  # path.
   PROJECT_PATH: test_restapi_with_APISyncWithGithub/test_restapi_with_APISyncWithGithub.csproj
 
 jobs:
@@ -24,16 +23,18 @@ jobs:
       - name: Zip artifact
         run: cd publish && zip -r ../app.zip . && cd ..
 
-      - name: Copy zip to VM
+      # zip aur deploy.ps1 dono VM par bhejo (SCP cmd shell se chalega)
+      - name: Copy files to VM
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VM_HOST }}
           port: ${{ secrets.VM_SSH_PORT }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
-          source: "app.zip"
+          source: "app.zip,deploy.ps1"
           target: "C:/temp"
 
+      # cmd default shell se PowerShell script ko -File se chalao (koi escaping nahi)
       - name: Deploy on VM
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -41,10 +42,5 @@ jobs:
           port: ${{ secrets.VM_SSH_PORT }}
           username: ${{ secrets.VM_USERNAME }}
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
-          script: |
-            $deploy = "C:\inetpub\test_restapi_github_withasyncapi"
-            New-Item -Path "$deploy\app_offline.htm" -ItemType File -Force
-            Start-Sleep -Seconds 3
-            Expand-Archive -Path "C:\temp\app.zip" -DestinationPath $deploy -Force
-            Remove-Item "$deploy\app_offline.htm" -Force
-            Remove-Item "C:\temp\app.zip" -Force
+          command_timeout: 15m
+          script: powershell -ExecutionPolicy Bypass -File C:\temp\deploy.ps1
