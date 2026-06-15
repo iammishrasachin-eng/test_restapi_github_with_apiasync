@@ -1,7 +1,11 @@
-name: Build and Deploy to VM
+﻿name: Build and Deploy to VM
 
 on:
   workflow_dispatch:
+
+env:
+  # path.
+  PROJECT_PATH: test_restapi_with_APISyncWithGithub/test_restapi_with_APISyncWithGithub.csproj
 
 jobs:
   build-and-deploy:
@@ -15,7 +19,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Publish
-        run: dotnet publish -c Release -o ./publish
+        run: dotnet publish "${{ env.PROJECT_PATH }}" -c Release -o ./publish
 
       - name: Zip artifact
         run: cd publish && zip -r ../app.zip . && cd ..
